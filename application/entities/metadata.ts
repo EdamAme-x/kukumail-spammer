@@ -20,7 +20,7 @@ export class Metadata {
     },
   ) {
     if (
-      REGEX_TOKEN.test(config.message) && REGEX_EMAIL.test(config.target) &&
+      REGEX_TOKEN.test(config.token) && REGEX_EMAIL.test(config.target) &&
       REGEX_SUBJECT.test(config.subject) && REGEX_MESSAGE.test(config.message)
     ) {
       this.config = config;

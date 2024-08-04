@@ -23,10 +23,10 @@ if (import.meta.main) {
     );
     Deno.exit(1);
   } else {
-    const target = args.get("target");
-    const token = args.get("token");
-    const subject = args.get("subject");
-    const message = args.get("message");
+    const target = args.get("target") || args.get("t");
+    const token = args.get("token") || args.get("k");
+    const subject = args.get("subject") || args.get("s");
+    const message = args.get("message") || args.get("m");
     if (target && token && subject && message) {
       const metadata = new Metadata({
         token,

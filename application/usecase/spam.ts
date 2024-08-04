@@ -37,9 +37,9 @@ export class Spam {
       const thread = 100;
 
       this.logger.setDepth(0).log("Getting number of address");
-      const addressList = await kukumail.getEmails();
-      if (addressList.type === "success") {
-        const lengthOfOfAddress = addressList.data.emails.length;
+      const beforeAddressList = await kukumail.getEmails();
+      if (beforeAddressList.type === "success") {
+        const lengthOfOfAddress = beforeAddressList.data.emails.length;
         this.logger.setDepth(1);
         this.logger.log("Number of address: " + lengthOfOfAddress);
 
@@ -65,48 +65,43 @@ export class Spam {
           }
         }
 
-        if (lengthOfOfAddress >= thread) {
-          this.logger.setDepth(0).log("Spamming");
-          const addressList = await kukumail.getEmails();
-          if (addressList.type === "success") {
-            const address = addressList.data.emails;
+        this.logger.setDepth(0).log("Spamming");
+        const addressList = await kukumail.getEmails();
+        if (addressList.type === "success") {
+          const address = addressList.data.emails;
 
-            const onThread = async () => {
-              while (address.length > 0) {
-                const email =
-                  address[Math.floor(Math.random() * address.length)];
+          const onThread = async () => {
+            while (address.length > 0) {
+              const email = address[Math.floor(Math.random() * address.length)];
 
-                this.logger.setDepth(1).log("Spamming address with " + email);
+              this.logger.setDepth(1).log("Spamming address with " + email.email);
 
-                const result = await kukumail.sendMail(
-                  email.email,
-                  target,
-                  subject,
-                  message.replace(
-                    /%HASH%/g,
-                    crypto.randomUUID().replace(/-/g, ""),
-                  ),
+              const result = await kukumail.sendMail(
+                email.email,
+                target,
+                subject,
+                message.replace(
+                  /%HASH%/g,
+                  crypto.randomUUID().replace(/-/g, ""),
+                ),
+              );
+
+              if (result.type === "success") {
+                this.logger.setDepth(1).log("Spammed address with " + email.email);
+              } else {
+                this.logger.setDepth(1).log(
+                  "Failed to spam address with " + email.email,
+                  "error",
                 );
-
-                if (result.type === "success") {
-                  this.logger.setDepth(1).log("Spammed address with " + email);
-                } else {
-                  this.logger.setDepth(1).log(
-                    "Failed to spam address with " + email,
-                    "error",
-                  );
-                }
               }
-            };
-
-            for (let i = 0; i < Math.floor(thread / 20); i++) {
-              onThread();
             }
-          } else {
-            throw new Error("Failed to get number of address");
+          };
+
+          for (let i = 0; i < Math.floor(thread / 20); i++) {
+            onThread();
           }
         } else {
-          throw new Error("Not enough address to spam");
+          throw new Error("Failed to get number of address");
         }
       } else {
         throw new Error("Failed to get number of address");
